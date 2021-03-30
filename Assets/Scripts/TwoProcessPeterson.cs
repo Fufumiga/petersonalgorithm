@@ -1,17 +1,14 @@
 using System.Collections;
 using UnityEngine;
-using TMPro;
 
 public class TwoProcessPeterson : MonoBehaviour
 {
     public static int turn;
     public static bool[] flags = new bool[2];
 
-    [SerializeField] private float executionTime = 5f;
     [SerializeField] private Process[] processes;
     [SerializeField] private Transform criticalRegion;
     [SerializeField] private Transform waitRegion;
-    [SerializeField] private TMP_Text turnText;
 
     void OnDisable()
     {
@@ -55,7 +52,7 @@ public class TwoProcessPeterson : MonoBehaviour
         processes[pID].transform.position = criticalRegion.position;
         processes[pID].EnableTimer();
 
-        yield return new WaitForSeconds(executionTime);
+        yield return new WaitForSeconds(5f);
 
         flags[pID] = false;
         processes[pID].LowerFlag();
