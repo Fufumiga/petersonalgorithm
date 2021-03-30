@@ -34,6 +34,8 @@ public class TwoProcessPeterson : MonoBehaviour
         processes[pID].RaiseFlag();
         turn = other;
 
+        yield return new WaitForSeconds(2f);
+
         while (flags[other] == true && turn == other)
         {
             //Espera
@@ -50,7 +52,7 @@ public class TwoProcessPeterson : MonoBehaviour
     {
         processes[pID].transform.position = criticalRegion.position;
 
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(5f);
 
         flags[pID] = false;
         processes[pID].LowerFlag();
