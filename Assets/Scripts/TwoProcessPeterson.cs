@@ -10,47 +10,54 @@ public class TwoProcessPeterson : MonoBehaviour
     [SerializeField] private Process[] processes;
     [SerializeField] private Transform criticalRegion;
     [SerializeField] private Transform waitRegion;
+    [SerializeField] public static bool isCriticalZoneOccupied;
 
     void OnDisable()
     {
         ResetAll();
     }
 
-    public void _StartAlgorithm()
+    public void _QueueProcesses()
     {
         for (int i = 0; i < processes.Length; i++)
         {
-            processes[i].TwoProcAlgorithm(i);
+            StartCoroutine(TwoProcAlgorithm(i));
         }
     }
-/*
-    public void PetersonAlgorithm(int pID)
+
+    public IEnumerator TwoProcAlgorithm(int pID)
     {
+        print("p" + pID + " chegou");
         int other = 1 - pID;
 
         flags[pID] = true;
         processes[pID].RaiseFlag();
         turn = other;
 
-        while(flags[other] == true && turn == other)
+        while (flags[other] == true && turn == other)
         {
             //Espera
             processes[pID].transform.position = waitRegion.position;
+            yield return null;
         }
 
-        //Região Crítica
-        StartCoroutine(CriticalTask(pID));
+        //Seção Crítica
+        StartCoroutine(CriticalSection(pID));
 
     }
 
-    IEnumerator CriticalTask(int pID)
+    IEnumerator CriticalSection(int pID)
     {
-        yield return new WaitForSeconds(processes[pID].executionTime);
+        processes[pID].transform.position = criticalRegion.position;
+
+        yield return new WaitForSeconds(2f);
+
         flags[pID] = false;
-        turn = 1 - pID;
         processes[pID].LowerFlag();
+        processes[pID].ResetPosition();
     }
-*/
+
+
     void ResetAll()
     {
         for (int i = 0; i < processes.Length; i++)
