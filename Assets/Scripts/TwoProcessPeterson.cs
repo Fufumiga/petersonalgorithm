@@ -1,16 +1,17 @@
 using System.Collections;
 using UnityEngine;
+using TMPro;
 
 public class TwoProcessPeterson : MonoBehaviour
 {
     public static int turn;
-
     public static bool[] flags = new bool[2];
-    
+
+    [SerializeField] private float executionTime = 5f;
     [SerializeField] private Process[] processes;
     [SerializeField] private Transform criticalRegion;
     [SerializeField] private Transform waitRegion;
-    [SerializeField] public static bool isCriticalZoneOccupied;
+    [SerializeField] private TMP_Text turnText;
 
     void OnDisable()
     {
@@ -45,14 +46,16 @@ public class TwoProcessPeterson : MonoBehaviour
 
         //Seção Crítica
         StartCoroutine(CriticalSection(pID));
+        
 
     }
 
     IEnumerator CriticalSection(int pID)
     {
         processes[pID].transform.position = criticalRegion.position;
+        processes[pID].EnableTimer();
 
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(executionTime);
 
         flags[pID] = false;
         processes[pID].LowerFlag();
