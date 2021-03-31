@@ -26,19 +26,18 @@ public class TwoProcessPeterson : MonoBehaviour
 
     public IEnumerator TwoProcAlgorithm(int pID)
     {
-        print("p" + pID + " chegou");
         int other = 1 - pID;
 
         flags[pID] = true;
-        processes[pID].RaiseFlag();
         turn = other;
+        processes[pID].RaiseFlag();
 
         yield return new WaitForSeconds(2f);
+        processes[pID].transform.position = waitRegion.position;
 
         while (flags[other] == true && turn == other)
         {
             //Espera
-            processes[pID].transform.position = waitRegion.position;
             yield return null;
         }
 

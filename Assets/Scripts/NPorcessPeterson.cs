@@ -9,16 +9,26 @@ public class NPorcessPeterson : MonoBehaviour
     [SerializeField] private GameObject reenterButton;
 
     private Queue<int> finishedProcesses;
+    private List<List<Transform>> takenPositions;
+
     private int[] levelOfPID;
     private int[] lastToEnter;
     private int numberOfProcesses;
 
     void Start()
     {
-        numberOfProcesses = processes.Length;
         finishedProcesses = new Queue<int>();
+        takenPositions = new List<List<Transform>>();
+
+        numberOfProcesses = processes.Length;
         levelOfPID = new int[numberOfProcesses];
         lastToEnter = new int[numberOfProcesses];
+
+        for (int i = 0; i < numberOfProcesses; i++)
+        {
+            levelOfPID[i] = -1;
+            takenPositions.Add(new List<Transform>());
+        }
     }
 
     void OnDisable()
@@ -36,27 +46,35 @@ public class NPorcessPeterson : MonoBehaviour
 
     private IEnumerator NProcAlgorithm(int pID)
     {
-        yield return new WaitForSeconds(Random.Range(0.5f, 1.5f));
-        for (int index = 0; index < numberOfProcesses; index++)
+        yield return new WaitForSeconds(Random.Range(0f, 1.5f));
+        for (int level = 0; level < numberOfProcesses; level++)
         {
-            levelOfPID[pID] = index;
-            lastToEnter[index] = pID;
+            #region Unity Stuff
 
-            yield return new WaitForSeconds(3f);
+            if (level != 0) yield return new WaitForSeconds(2f);
 
-            Transform referencePoint = levels[index].availablePositions.Dequeue();
+            Transform referencePoint = levels[level].availablePositions.Dequeue();           
             processes[pID].transform.position = referencePoint.position;
 
-            while (lastToEnter[index] == pID && index != numberOfProcesses-1)
+            takenPositions[level].Add(referencePoint);
+
+            #endregion
+
+            levelOfPID[pID] = level;
+            lastToEnter[level] = pID;
+
+            while (lastToEnter[level] == pID && level != numberOfProcesses-1)
             { 
                 yield return null;
             }
 
-            levels[index].availablePositions.Enqueue(referencePoint);
-
+            #region Unity Stuff
+            levels[level].availablePositions.Enqueue(referencePoint);
+            takenPositions[level].Remove(referencePoint);
+            #endregion
         }
 
-        StartCoroutine(CriticalSection(pID));
+        StartCoroutine(CriticalSection(pID));       
     }
 
     IEnumerator CriticalSection(int pID)
@@ -69,6 +87,7 @@ public class NPorcessPeterson : MonoBehaviour
 
         finishedProcesses.Enqueue(pID);
         reenterButton.SetActive(true);
+        levelOfPID[pID] = -1;
     }
 
     public void _ReenterProcess()
@@ -77,15 +96,33 @@ public class NPorcessPeterson : MonoBehaviour
         StartCoroutine(NProcAlgorithm(pID));
     }
 
-    void ResetAll()
+    public void ResetAll()
     {
+        ReturnTakenPositions();
+        StopAllCoroutines();
+
+        finishedProcesses.Clear();
         for (int i = 0; i < processes.Length; i++)
         {
             processes[i].ResetPosition();
+            processes[i].DisableSlider();
         }
-        finishedProcesses.Clear();
-        StopAllCoroutines();
+
+        reenterButton.SetActive(false);
     }
 
+    void ReturnTakenPositions()
+    {
+        
+        for (int index = 0; index < numberOfProcesses; index++)
+        {
+            foreach(Transform pos in takenPositions[index])
+            {
+                levels[index].availablePositions.Enqueue(pos);
+            }       
+        }
+        
+        
+    }
 
 }
