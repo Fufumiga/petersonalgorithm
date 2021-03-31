@@ -29,6 +29,11 @@ public class Process : MonoBehaviour
         transform.localPosition = originalPosition;
     }
 
+    public void DisableSlider()
+    {
+        slider.gameObject.SetActive(false);
+    }
+
     public void EnableTimer()
     {
         slider.gameObject.SetActive(true);

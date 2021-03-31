@@ -9,6 +9,7 @@ public class TwoProcessPeterson : MonoBehaviour
     [SerializeField] private Process[] processes;
     [SerializeField] private Transform criticalRegion;
     [SerializeField] private Transform waitRegion;
+    [SerializeField] private GameObject startButton;
 
     void OnDisable()
     {
@@ -43,7 +44,6 @@ public class TwoProcessPeterson : MonoBehaviour
 
         //Seção Crítica
         StartCoroutine(CriticalSection(pID));
-        
 
     }
 
@@ -57,16 +57,29 @@ public class TwoProcessPeterson : MonoBehaviour
         flags[pID] = false;
         processes[pID].LowerFlag();
         processes[pID].ResetPosition();
+        TryReactivateStart();
     }
 
 
     void ResetAll()
     {
+        StopAllCoroutines();
         for (int i = 0; i < processes.Length; i++)
         {
             processes[i].ResetPosition();
+            processes[i].LowerFlag();
+            processes[i].DisableSlider();
             flags[i] = false;
         }
+
+        startButton.SetActive(true);
     }
 
+
+    void TryReactivateStart()
+    {
+        startButton.SetActive(
+            flags[0] is false && flags[1] is false ? true : false
+            );
+    }
 }
